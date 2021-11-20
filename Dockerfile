@@ -1,7 +1,8 @@
-# Docker compatible:
-# FROM        debian:10
+FROM        debian:10
 # Podman compatible:
-FROM        docker.io/debian:10
+# FROM        docker.io/debian:10
+# Or set 'unqualified-search-registries' to include 'docker.io' in your /etc/containers/registries.conf file.
+
 # Stolen in part from here: https://git.openwrt.org/?p=buildbot.git;a=blob;f=docker/buildworker/Dockerfile;h=5219f92e0f50fa08fadecc5576b6c7d6216e0a6a;hb=46c1b080d3eadebbb504150788ddd2d9424eb28f
 
 USER root
@@ -45,7 +46,7 @@ WORKDIR /pwd
 
 VOLUME [ "/pwd" ]
 
-# CMD [ "./custom-build.sh" ]
+CMD [ "./custom-build.sh" ]
 
 # Running:
 # Checkout the desired Openwrt branch locally.
