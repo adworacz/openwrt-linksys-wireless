@@ -1,0 +1,45 @@
+--- a/net/mac80211/agg-tx.c
++++ b/net/mac80211/agg-tx.c
+@@ -449,7 +449,8 @@ static void sta_addba_resp_timer_expired
+ }
+ 
+ static void ieee80211_send_addba_with_timeout(struct sta_info *sta,
+-					      struct tid_ampdu_tx *tid_tx)
++					      struct tid_ampdu_tx *tid_tx,
++					      u16 ssn)
+ {
+ 	struct ieee80211_sub_if_data *sdata = sta->sdata;
+ 	struct ieee80211_local *local = sta->local;
+@@ -481,7 +482,7 @@ static void ieee80211_send_addba_with_ti
+ 	/* send AddBA request */
+ 	ieee80211_send_addba_request(sdata, sta->sta.addr, tid,
+ 				     tid_tx->dialog_token,
+-				     sta->tid_seq[tid] >> 4,
++				     ssn,
+ 				     buf_size, tid_tx->timeout);
+ 
+ 	WARN_ON(test_and_set_bit(HT_AGG_STATE_SENT_ADDBA, &tid_tx->state));
+@@ -548,7 +549,7 @@ void ieee80211_tx_ba_session_handle_star
+ 		return;
+ 	}
+ 
+-	ieee80211_send_addba_with_timeout(sta, tid_tx);
++	ieee80211_send_addba_with_timeout(sta, tid_tx, params.ssn);
+ }
+ 
+ /*
+@@ -766,12 +767,13 @@ void ieee80211_start_tx_ba_cb(struct sta
+ {
+ 	struct ieee80211_sub_if_data *sdata = sta->sdata;
+ 	struct ieee80211_local *local = sdata->local;
++	u16 ssn = sta->tid_seq[tid_tx->tid] >> 4;
+ 
+ 	if (WARN_ON(test_and_set_bit(HT_AGG_STATE_DRV_READY, &tid_tx->state)))
+ 		return;
+ 
+ 	if (!test_bit(HT_AGG_STATE_SENT_ADDBA, &tid_tx->state)) {
+-		ieee80211_send_addba_with_timeout(sta, tid_tx);
++		ieee80211_send_addba_with_timeout(sta, tid_tx, ssn);
+ 		/* RESPONSE_RECEIVED state whould trigger the flow again */
+ 		return;
+ 	}
